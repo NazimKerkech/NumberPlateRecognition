@@ -1,36 +1,27 @@
-from tkinter import image_names
-import torch
-import os
-from PIL import Image
 import pandas as pd
-import csv
 import streamlit as st
 #from yolov5_master.utils.metrics import box_iou
 #import yolov5_master.utils.metrics
-import pandas as pd
 import matplotlib.pyplot as plt
 import cv2
+import chemins
 
-train_csv="train_predictions_17_03_2022.csv"
-val_csv="validation_predictions_17_03_2022.csv"
+
 ########################## PLOTS FUNCTIONS #########################
 def afficher_plot(plot):
     if plot=='True Positives':
-        plot_all_iou(train_csv,val_csv)
-        print("TP done")
+        plot_all_iou(chemins.train_csv, chemins.val_csv)
     if plot=='Precision':
-        plot_all_precision(train_csv,val_csv)
-        print("PRECISION done")
+        plot_all_precision(chemins.train_csv, chemins.val_csv)
     if plot=='Recall':
-        plot_all_recall(train_csv,val_csv)
-        print("RECALL done")
+        plot_all_recall(chemins.train_csv, chemins.val_csv)
     if plot=='F1score':
-        plot_all_f1score(train_csv,val_csv)
+        plot_all_f1score(chemins.train_csv, chemins.val_csv)
 
 def afficher_data():
-    df_train = pd.read_csv(train_csv)  # read a CSV file inside the 'data" folder next to 'app.py'
+    df_train = pd.read_csv(chemins.train_csv)  # read a CSV file inside the 'data" folder next to 'app.py'
     #df_train.drop(columns=df_train.columns[0], axis=1, inplace=True)
-    df_val= pd.read_csv(val_csv)  # read a CSV file inside the 'data" folder next to 'app.py'
+    df_val= pd.read_csv(chemins.val_csv)  # read a CSV file inside the 'data" folder next to 'app.py'
     #df_val.drop(columns=df_val.columns[0], axis=1, inplace=True)
     st.title("TRAIN PREDICTIONS")  # add a title
     st.write(df_train)  # visualize my dataframe in the Streamlit app
@@ -62,8 +53,8 @@ def convert_to_list(a):
     return a
 
 def get_gt_pred(name):
-    df_train = pd.read_csv(train_csv)
-    df_val=pd.read_csv(val_csv)
+    df_train = pd.read_csv(chemins.train_csv)
+    df_val=pd.read_csv(chemins.val_csv)
     gt=[]
     pred=[]
     x1=()
@@ -76,8 +67,6 @@ def get_gt_pred(name):
     for ind in df_val.index:
         if(df_val['image_name'][ind]==name):
             gt,pred=df_val['GT_coordinates'][ind],df_val['prediction_coordinates'][ind]
-    print(gt)
-    print(pred)
     if(gt!=[] and gt!='Nan'):
         gt=convert_to_list(gt)
         x1=gt[0],gt[1]
@@ -90,8 +79,8 @@ def get_gt_pred(name):
     return x1,y1,x2,y2 #GT:(x1,y1)-->(xmin,ymin,xmax,ymax) Prediction:(x2,y2)-->(xmin,ymin,xmax,ymax)
 
 def get_iou(name):
-    df_train = pd.read_csv(train_csv)
-    df_val=pd.read_csv(val_csv)
+    df_train = pd.read_csv(chemins.train_csv)
+    df_val=pd.read_csv(chemins.val_csv)
     iou='Nan'
     for ind in df_train.index:
         if(df_train['image_name'][ind]==name):
@@ -107,7 +96,6 @@ def display_image(image_name):
 
     path="/home/thedoctor/Téléchargements/PIA2/Algeria Cars Final/"+image_name
     iou='IoU='+get_iou(image_name)
-    print(iou)
     img = cv2.imread(path)
     #img = img[80:900, 1:900]
     if iou!='IoU=Nan':
@@ -120,7 +108,6 @@ def display_image(image_name):
             cv2.putText(img,iou,(x1[0],x1[1]-5),cv2.FONT_ITALIC,0.75,(255,0,0),1,cv2.LINE_AA) #x1[0] is the x and x1[1] is the y
         else:
             cv2.putText(img,iou,(x2[0],x2[1]-5),cv2.FONT_ITALIC,0.75,(255,0,0),1,cv2.LINE_AA)
-        print(img.shape)
         #plt.savefig("car_1_V2.png")
         plt.imshow(img)
         plt.show()
@@ -186,7 +173,6 @@ def confusion_matrix(iou,csv_path):
         else:
             fn+=1
             total+=1
-    #print(total)
     return tp,fp,tn,fn
 
 
@@ -305,7 +291,6 @@ def get_f1score(iou,prediction_csv):
         f1score=0
     else:
         f1score=2.0*(float(recall*precision)/float(recall+precision))
-        #print(f1score)
     return f1score
 
 #%matplotlib inline

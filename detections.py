@@ -3,10 +3,7 @@ from PIL import Image
 import torch
 import numpy as np
 import cv2
-import sys
-sys.path.append("/home/thedoctor/yolov5")
-import detect
-import copy
+import chemins
 
 def app():
     
@@ -27,7 +24,7 @@ def app():
     # Appercu
     if uploaded_file is None:
         # Default image.
-        image = cv2.imread('/home/thedoctor/Téléchargements/PIA2/Algeria Cars Final/car_3049.jpg')
+        image = cv2.imread(chemins.dataset_localisation+"car_3049.jpg")
     
     else:
         # User-selected image.
@@ -41,8 +38,8 @@ def app():
         st.markdown("# Localisation")
     
         # Detection avec YOLOv5
-        model_loc = torch.hub.load("/home/thedoctor/yolov5", "custom",
-                                path="/home/thedoctor/yolov5/runs/train/exp1/weights/best.pt",
+        model_loc = torch.hub.load(chemins.chemin_vers_yolo, "custom",
+                                path="localisation.pt",
                                 source="local")
         model_loc.conf = confidence_threshold_loc    # NMS (Non Maximum Suppression) confidence threshold
         model_loc.iou = iou_threshold_loc            # NMS IoU threshold
@@ -74,8 +71,8 @@ def app():
         img_plaque = image[int(res_loc[0][1]) : int(res_loc[0][0]), int(res_loc[0][3]) : int(res_loc[0][2])]
         img_plaque = cv2.resize(img_plaque, (1000, int(img_plaque.shape[0]/img_plaque.shape[1]*1000)))
     
-        model_reco = torch.hub.load("/home/thedoctor/yolov5", "custom",
-                                path="/home/thedoctor/Téléchargements/exp3/weights/best.pt",
+        model_reco = torch.hub.load(chemins.chemin_vers_yolo, "custom",
+                                path="reconnaissance.pt",
                                 source="local")
     
         model_reco.conf = confidence_threshold_reco    # NMS (Non Maximum Suppression) confidence threshold
